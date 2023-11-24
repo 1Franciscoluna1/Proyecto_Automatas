@@ -1,15 +1,3 @@
-# def q22(codigo, posicion, buffer,valores):
-# 	if posicion < len(codigo):
-# 		caracter = codigo[posicion]
-# 		if caracter.isspace():
-# 			valores['Números Decimales'].append(buffer)
-# 			q0(codigo, posicion + 1,valores)
-
-#		 else:
-#		 	qerror(codigo, posicion, buffer,valores)
-			
-# 	return valores
-
 
 
 def q0(codigo, posicion,valores):
@@ -25,16 +13,18 @@ def q0(codigo, posicion,valores):
 			q20(codigo, posicion + 1, caracter, valores)
 		elif caracter.isalpha():
 			q1(codigo, posicion + 1, caracter, valores)
-		elif caracter in ['+', '-', '*', '%','/']:
+		elif caracter in ['+', '-', '*', '%']:
 			q13(codigo, posicion + 1, caracter, valores)
+		elif caracter == '/':
+			q13_1(codigo, posicion + 1, caracter, valores)
 		elif caracter == '&':
 			q11(codigo, posicion + 1, caracter, valores)
 		elif caracter == '|':
 			q10(codigo, posicion + 1, caracter, valores)
 		elif caracter == '!':
-			q6(codigo, posicion + 1, caracter, valores)
-		elif caracter in ['<','>']:
 			q7(codigo, posicion + 1, caracter, valores)
+		elif caracter in ['<','>']:
+			q6(codigo, posicion + 1, caracter, valores)
 		elif caracter == '=':
 			q5(codigo, posicion + 1, caracter, valores)
 	return valores
@@ -118,14 +108,24 @@ def q13(codigo, posicion, buffer,valores):
 	if posicion < len(codigo):
 		caracter = codigo[posicion]
 		if caracter.isspace():
-			valores['Operadores Lógicos'].append(buffer)
+			valores['Operadores Aritméticos'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+def q13_1(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Operadores Aritméticos'].append(buffer)
 			q0(codigo, posicion + 1,valores)
 		elif caracter == '/':
 			buffer += caracter
 			q16(codigo, posicion + 1,buffer,valores)
 		elif caracter == '*':
 			buffer += caracter
-			q17(codigo, posicion + 1,buffer,valores)
+			q14(codigo, posicion + 1,buffer,valores)
 		else:
 			qerror(codigo, posicion, buffer,valores)
 	return valores
@@ -141,6 +141,133 @@ def q16(codigo, posicion, buffer,valores):
 			q16(codigo, posicion + 1, buffer,valores)
 	return valores
 
+def q14(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '*':
+			buffer += caracter
+			q15(codigo, posicion + 1, buffer,valores)
+		else:
+			buffer += caracter
+			q14(codigo, posicion + 1, buffer,valores)
+		return valores
+
+def q15(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '/':
+			buffer += caracter
+			q17(codigo, posicion+1, buffer,valores)
+		else:
+			buffer += caracter
+			q14(codigo, posicion+1, buffer,valores)
+
+def q17(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Comentario Multilínea'].append(buffer)
+			q0(codigo, posicion,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+		return valores
+
+def q11(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '&':
+			buffer += caracter
+			q9(codigo, posicion+1, buffer,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+		return valores
+
+def q11(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '&':
+			buffer += caracter
+			q9(codigo, posicion+1, buffer,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+		return valores
+
+def q10(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '|':
+			buffer += caracter
+			q9(codigo, posicion+1, buffer,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+		return valores
+
+def	q9(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Operadores Lógicos'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+def q6(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter == '=':
+			buffer += caracter
+			q8(codigo, posicion+1, buffer,valores)
+		elif caracter.isspace():
+			valores['Operadores Relacionales'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+def q8(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Operadores Relacionales'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+def q7(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter == '=':
+			buffer += caracter
+			q8(codigo, posicion+1, buffer,valores)
+		elif caracter.isspace():
+			valores['Operadores Lógicos'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+def q5(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Asignaciones'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
 def qerror(codigo, posicion, buffer,valores):
 	if posicion < len (codigo):
 		caracter = codigo[posicion]
@@ -153,12 +280,28 @@ def qerror(codigo, posicion, buffer,valores):
 	return valores
 
 codigo_ejemplo = '''
-29.5 29 25555 2
-/a * - * 
-2.48
-print a i switch
-//hola_como_estas int
-{ } { { case } } /*
+int dat.o
+double numer__o
+String texto = 5555
+
+switch ( numero ) {
+	case 5 
+		if ( 3.5 >= 8 && dato < 16 ) {
+		/*Esto_deberia_funcionar()*/
+		/*Para_el_automata{}*/
+		valor = 18 * 5
+		}
+	case 3
+		for ( i = 0 i < 7 || j > 18 ) {
+		i = i - -3.16
+		}
+default
+	while ( num < 3 )
+		break
+
+/*Se termino
+
+}
 '''
 valores = {
 	'Palabras reservadas': [],
