@@ -1,4 +1,5 @@
-
+import tkinter as tk
+from tkinter import filedialog
 
 def q0(codigo, posicion,valores):
 	if posicion < len(codigo):
@@ -13,7 +14,7 @@ def q0(codigo, posicion,valores):
 			q20(codigo, posicion + 1, caracter, valores)
 		elif caracter.isalpha():
 			q1(codigo, posicion + 1, caracter, valores)
-		elif caracter in ['+', '-', '*', '%']:
+		elif caracter in ['+', '*', '%']:
 			q13(codigo, posicion + 1, caracter, valores)
 		elif caracter == '/':
 			q13_1(codigo, posicion + 1, caracter, valores)
@@ -27,6 +28,10 @@ def q0(codigo, posicion,valores):
 			q6(codigo, posicion + 1, caracter, valores)
 		elif caracter == '=':
 			q5(codigo, posicion + 1, caracter, valores)
+		elif caracter == '"':
+			q26(codigo, posicion + 1, caracter, valores)
+		elif caracter == '-':
+			q28(codigo, posicion + 1, caracter, valores)
 	return valores
 	
 
@@ -268,6 +273,46 @@ def q5(codigo, posicion, buffer,valores):
 			qerror(codigo, posicion, buffer,valores)
 	return valores
 
+def q26(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			qerror(codigo, posicion, buffer,valores)
+		elif caracter == '"':
+			buffer += caracter
+			q27(codigo, posicion + 1, buffer,valores)
+		else:
+			buffer += caracter
+			q26(codigo, posicion + 1, buffer,valores)
+	return valores
+
+def q27(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isspace():
+			valores['Cadena de Caracteres'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+
+
+
+def q28(codigo, posicion, buffer,valores):
+	if posicion < len(codigo):
+		caracter = codigo[posicion]
+		if caracter.isdigit():
+			buffer += caracter
+			q24(codigo, posicion + 1, buffer,valores)
+		elif caracter.isspace():
+			valores['Operadores Aritméticos'].append(buffer)
+			q0(codigo, posicion + 1,valores)
+		else:
+			qerror(codigo, posicion, buffer,valores)
+	return valores
+		
+
+
 def qerror(codigo, posicion, buffer,valores):
 	if posicion < len (codigo):
 		caracter = codigo[posicion]
@@ -280,28 +325,16 @@ def qerror(codigo, posicion, buffer,valores):
 	return valores
 
 codigo_ejemplo = '''
-int dat.o
-double numer__o
-String texto = 5555
+/*EsteArchivoEsDeFacil_Lectura_Para_el_Aut%mata*/
 
-switch ( numero ) {
-	case 5 
-		if ( 3.5 >= 8 && dato < 16 ) {
-		/*Esto_deberia_funcionar()*/
-		/*Para_el_automata{}*/
-		valor = 18 * 5
-		}
-	case 3
-		for ( i = 0 i < 7 || j > 18 ) {
-		i = i - -3.16
-		}
-default
-	while ( num < 3 )
-		break
+if ( numero >= 17.34 ) {
+	dato = 25..18
+	print ( "Hola_Mundo" )
+	}
 
-/*Se termino
-
-}
+//Otro_Comentario
+	
+while ( dato != hola && valor <. 5 ) { x = dato - numero }
 '''
 valores = {
 	'Palabras reservadas': [],
@@ -321,7 +354,61 @@ valores = {
 }
 
 
-resultados = q0(codigo_ejemplo,0,valores)
+def reiniciar_valores():
+    global valores
+    valores = {
+        'Palabras reservadas': [],
+        'Identificadores': [],
+        'Operadores Relacionales': [],
+        'Operadores Lógicos': [],
+        'Operadores Aritméticos': [],
+        'Asignaciones': [],
+        'Número Enteros': [],
+        'Números Decimales': [],
+        'Cadena de Caracteres': [],
+        'Comentario Multilínea': [],
+        'Comentario de Línea': [],
+        'Paréntesis': [],
+        'Llaves': [],
+        'Errores': []
+    }
 
-for tipo, cantidad in resultados.items():
-    print(f'{tipo} : {cantidad}')
+def seleccionar_archivo():
+    file_path = filedialog.askopenfilename(filetypes=[("Archivos de texto", "*.txt")])
+    if file_path:
+        with open(file_path, 'r') as file:
+            contenido = file.read()
+            text_area.delete("1.0", tk.END)
+            text_area.insert(tk.END, contenido)
+
+def procesar_codigo():
+	result_text.config(state=tk.NORMAL)
+	result_text.delete("1.0", tk.END)
+
+	reiniciar_valores()
+
+	codigo = text_area.get("1.0", tk.END)
+	resultados = q0(codigo, 0, valores)
+	print(resultados)
+	for tipo, valores_tipo in resultados.items():
+		result_text.insert(tk.END, f'{tipo} : {len(valores_tipo)}\n')
+		result_text.insert(tk.END, f'Valores de {tipo}: {valores[tipo]}\n\n')    
+	result_text.config(state=tk.DISABLED)
+
+root = tk.Tk()
+root.title("Proyecto de Automatas")
+
+text_area = tk.Text(root, height=20, width=100)
+text_area.pack()
+
+select_file_button = tk.Button(root, text="Seleccionar archivo", command=seleccionar_archivo)
+select_file_button.pack()
+
+process_button = tk.Button(root, text="Procesar Código", command=procesar_codigo)
+process_button.pack()
+
+result_text = tk.Text(root, height=20, width=100)
+result_text.pack()
+
+
+root.mainloop()
